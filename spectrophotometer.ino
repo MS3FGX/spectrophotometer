@@ -5,7 +5,7 @@
 */
 
 // Version info
-#define VERSION 0.5
+#define VERSION 1.0
 
 // Libraries for hardware
 #include <Wire.h>
@@ -21,7 +21,7 @@
 LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 
 // Calibration values
-#define FULLBATT 5.0
+#define FULLBATT 5.15
 #define NOSAMPLE 485
 #define WATER 470
 
@@ -34,9 +34,14 @@ Bounce SCAN_SMPL = Bounce ();
 
 // Misc variables
 int sensor_reading;
+int debug = 0;
 
 void setup()
 {
+  // Init serial coms
+  Serial.begin(57600);
+  Serial.println("Power on");
+  
   // Setup LCD
   lcd.begin(20,4);
   
@@ -56,16 +61,42 @@ void setup()
   // Setup button
   pinMode(BUTTON, INPUT);
   digitalWrite(BUTTON, HIGH);
+  
+  // If held, go to debug
+  if (digitalRead(BUTTON) == LOW)
+    debug = 1;
+    
+  // Setup bounce library
   SCAN_SMPL .attach(BUTTON);
   SCAN_SMPL .interval(10);
 
-  // Init serial coms
-  Serial.begin(57600);
+  // Exiting setup
   Serial.println("Ready");
 }
 
 void loop()
 {  
+  // Check for debug
+  while (debug == 1)
+  {
+    // First line
+    lcd.setCursor(0,0);
+    lcd.print("DEBUG");
+    lcd.setCursor(7,0);
+    lcd.print("Volt:");
+    lcd.print(readVcc()/1000.0);
+    
+    // LED on
+    digitalWrite(LED, HIGH);
+    lcd.setCursor(0,1);
+    lcd.print("Sensor: ");
+    lcd.print(ReadSensor());
+    
+    // Wait before loop
+    delay(100);
+  }
+  
+  
   // Let user know we are ready
   lcd.setCursor(0,1);
   lcd.print("Ready");
@@ -74,7 +105,7 @@ void loop()
   SCAN_SMPL.update();
   
   if (SCAN_SMPL.fell())
-  {
+  {    
     // Notification
     ClearLine(1);
     lcd.print("Analyzing...");
