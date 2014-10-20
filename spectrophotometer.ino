@@ -1,11 +1,11 @@
 /*
-  Firmware for 3D printed spectrometer.
+  Firmware for 3D printed spectrophotometer.
   Developed by Tom Nardi (MS3FGX@gmail.com)
   Released under the BSD 3 Clause license
 */
 
 // Version info
-#define VERSION 1.0
+#define VERSION 1.1
 
 // Libraries for hardware
 #include <Wire.h>
@@ -20,10 +20,10 @@
 // Set the LCD I2C address
 LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 
-// Calibration values
+// Calibration values for white ref LED
 #define FULLBATT 5.15
-#define NOSAMPLE 485
-#define WATER 470
+#define NOSAMPLE 430
+#define WATER 420
 
 // Sensor data
 #define SAMPLES 100
@@ -96,7 +96,6 @@ void loop()
     delay(100);
   }
   
-  
   // Let user know we are ready
   lcd.setCursor(0,1);
   lcd.print("Ready");
@@ -109,7 +108,7 @@ void loop()
     // Notification
     ClearLine(1);
     lcd.print("Analyzing...");
-    Serial.println("Scanning...");
+    Serial.println("Analyzing...");
     
     // Reference LED on
     digitalWrite(LED, HIGH);
@@ -151,6 +150,7 @@ void loop()
   }
 }
 
+// Return smoothed value from sensor
 int ReadSensor()
 {
   // Load data into array
@@ -208,17 +208,20 @@ long readVcc()
   return result;
 }
 
+// Return percentage of battery against define calibration
 int BatteryPercent()
 {
   return(((readVcc()/1000.0) / FULLBATT) * 100);
 }
 
+// Return percentage of light transmission compared to water
 int WaterPercent(double sensor)
 {
   // Handle as double to keep precision
   return((sensor / WATER) * 100);
 }
 
+// Clear given line on LCD
 void ClearLine(int line)
 {
   // What a hack...
@@ -226,11 +229,3 @@ void ClearLine(int line)
   lcd.println("                ");
   lcd.setCursor(0,line);
 }
-
-void blinkLED()
-{
-  digitalWrite(LED, HIGH);
-  delay(1000);
-  digitalWrite(LED, LOW);
-  delay(1000);
-} 
