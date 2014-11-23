@@ -5,7 +5,7 @@
 */
 
 // Version info
-#define VERSION 1.1
+#define VERSION 1.2
 
 // Libraries for hardware
 #include <Wire.h>
@@ -24,6 +24,7 @@ LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 #define FULLBATT 5.15
 #define NOSAMPLE 430
 #define WATER 420
+#define SENSE_DELAY 2000
 
 // Sensor data
 #define SAMPLES 100
@@ -112,7 +113,9 @@ void loop()
     
     // Reference LED on
     digitalWrite(LED, HIGH);
-    delay(50);
+
+    // Wait for sensor to stablize
+    delay(SENSE_DELAY);
     
     // Read sensor and attempt to match
     sensor_reading = ReadSensor();

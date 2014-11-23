@@ -1,3 +1,7 @@
+11/23/14: Firmware 1.2
+	Increase reference LED on time to try and improve accuracy
+	Make reference LED on time a #define for future adjustment
+
 10/20/14:
 	Firmware 1.1, many fixes/cleanups, and new calibration values
 	First attempt at respectable README.md
